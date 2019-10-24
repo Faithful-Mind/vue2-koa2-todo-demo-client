@@ -10,17 +10,14 @@
           <el-col :xs="24">
             <template v-if="!Done"> <!--v-if和v-for不能同时在一个元素内使用，因为Vue总会先执行v-for-->
               <template v-for="(item, index) in list">
-                <div class="todo-list" v-if="item.status == false" :key="index">
-                  <span class="item">
-                    {{ index + 1 }}. {{ item.content }}
-                  </span>
-                  <span class="pull-right">
-                    <el-button size="small" type="primary" @click="finished(index)">完成</el-button>
-                    <el-button size="small" :plain="true" type="danger" @click="remove(index)">
-                      删除
-                    </el-button>
-                  </span>
-                </div>
+                <todo-item
+                  :key="index"
+                  v-if="item.status == false"
+                  :index="index"
+                  :item="item"
+                  v-on:finish="finished"
+                  v-on:remove="remove"
+                />
               </template>
             </template>
             <div v-else-if="Done">
@@ -31,14 +28,14 @@
         <el-tab-pane label="已完成事项" name="second">
           <template v-if="count > 0">
             <template v-for="(item, index) in list">
-              <div class="todo-list" v-if="item.status == true" :key="index">
-                <span class="item finished">
-                  {{ index + 1 }}. {{ item.content }}
-                </span>
-                <span class="pull-right">
-                  <el-button size="small" type="primary" @click="restore(index)">还原</el-button>
-                </span>
-              </div>
+              <todo-item
+                :key="index"
+                v-if="item.status == true"
+                :index="index"
+                :item="item"
+                v-on:restore="restore"
+                v-on:remove="remove"
+              />
             </template>
           </template>
           <div v-else>
@@ -51,8 +48,12 @@
 </template>
 
 <script>
+import TodoItem from '../components/TodoItem.vue';
 /* eslint-disable guard-for-in */
 export default {
+  components: {
+    TodoItem,
+  },
   data() {
     return {
       name: 'Molunerfinn',
