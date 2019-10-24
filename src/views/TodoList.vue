@@ -49,6 +49,8 @@
 
 <script>
 /* eslint-disable guard-for-in */
+import axios from 'axios';
+
 import TodoItem from '../components/TodoItem.vue';
 
 export default {
@@ -65,6 +67,7 @@ export default {
       this.id = '';
       this.name = '';
     }
+    this.getTodolist(); // 新增：在组件创建时获取todolist
   },
 
   data() {
@@ -98,13 +101,28 @@ export default {
 
   methods: {
     addTodos() {
-      if (this.todos === '') { return; }
+      if (this.todos === '') return;
       const obj = {
         status: false,
         content: this.todos,
+        id: this.id,
       };
-      this.list.push(obj);
-      this.todos = '';
+      axios.post('/api/todolist', obj) // 新增创建请求
+        .then((res) => {
+          if (res.status === 200) { // 当返回的状态为200成功时
+            this.$message({
+              type: 'success',
+              message: '创建成功！',
+            });
+            this.getTodolist(); // 获得最新的todolist
+          } else {
+            this.$message.error('创建失败！'); // 当返回不是200说明处理出问题
+          }
+        }, (err) => {
+          this.$message.error('创建失败！'); // 当没有返回值说明服务端错误或者请求没发送出去
+          console.log(err);
+        });
+      this.todos = ''; // 将当前todos清空
     },
     finished(index) {
       this.$set(this.list[index], 'status', true); // 通过set的方法让数组的变动能够让Vue检测到
@@ -135,6 +153,19 @@ export default {
         return decode; // decode解析出来实际上就是{name: XXX,id: XXX}
       }
       return null;
+    },
+    getTodolist() {
+      axios.get(`/api/todolist/${this.id}`) // 向后端发送获取todolist的请求
+        .then((res) => {
+          if (res.status === 200) {
+            this.list = res.data; // 将获取的信息塞入实例里的list
+          } else {
+            this.$message.error('获取列表失败！');
+          }
+        }, (err) => {
+          this.$message.error('获取列表失败！');
+          console.log(err);
+        });
     },
   },
 };
