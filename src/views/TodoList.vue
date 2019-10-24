@@ -48,21 +48,36 @@
 </template>
 
 <script>
-import TodoItem from '../components/TodoItem.vue';
 /* eslint-disable guard-for-in */
+import TodoItem from '../components/TodoItem.vue';
+
 export default {
   components: {
     TodoItem,
   },
+
+  created() { // 组件创建时调用
+    const userInfo = this.getUserInfo();
+    if (userInfo != null) {
+      this.id = userInfo.id;
+      this.name = userInfo.name;
+    } else {
+      this.id = '';
+      this.name = '';
+    }
+  },
+
   data() {
     return {
-      name: 'Molunerfinn',
+      name: '',
       todos: '',
       activeName: 'first',
       list: [],
       count: 0,
+      id: '', // 新增用户id属性，用于区别用户
     };
   },
+
   computed: { // 计算属性用于计算是否已经完成了所有任务
     Done() {
       let count = 0;
@@ -111,6 +126,15 @@ export default {
         type: 'info',
         message: '任务还原',
       });
+    },
+    /** 解析JWT Payload，获取用户信息 */
+    getUserInfo() {
+      const token = sessionStorage.getItem('demo-token');
+      if (token != null && token !== 'null') {
+        const decode = JSON.parse(atob(token.split('.')[1])); // 解析JWT Payload
+        return decode; // decode解析出来实际上就是{name: XXX,id: XXX}
+      }
+      return null;
     },
   },
 };
