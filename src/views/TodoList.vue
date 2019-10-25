@@ -15,7 +15,7 @@
                   v-if="item.status == false"
                   :index="index"
                   :item="item"
-                  v-on:finish="finished"
+                  v-on:finish="update"
                   v-on:remove="remove"
                 />
               </template>
@@ -33,7 +33,7 @@
                 v-if="item.status == true"
                 :index="index"
                 :item="item"
-                v-on:restore="restore"
+                v-on:restore="update"
                 v-on:remove="remove"
               />
             </template>
@@ -124,26 +124,42 @@ export default {
         });
       this.todos = ''; // 将当前todos清空
     },
-    finished(index) {
-      this.$set(this.list[index], 'status', true); // 通过set的方法让数组的变动能够让Vue检测到
-      this.$message({
-        type: 'success',
-        message: '任务完成',
-      });
+    update(index) {
+      axios.put(
+        `/api/todolist/${this.id}/${this.list[index].id}`,
+        { ...this.list[index], status: !this.list[index].status },
+      )
+        .then((res) => {
+          if (res.status === 200) {
+            this.$message({
+              type: 'success',
+              message: '任务状态更新成功！',
+            });
+            this.getTodolist();
+          } else {
+            this.$message.error('任务状态更新失败！');
+          }
+        }, (err) => {
+          this.$message.error('任务状态更新失败！');
+          console.log(err);
+        });
     },
     remove(index) {
-      this.list.splice(index, 1);
-      this.$message({
-        type: 'info',
-        message: '任务删除',
-      });
-    },
-    restore(index) {
-      this.$set(this.list[index], 'status', false);
-      this.$message({
-        type: 'info',
-        message: '任务还原',
-      });
+      axios.delete(`/api/todolist/${this.id}/${this.list[index].id}`)
+        .then((res) => {
+          if (res.status === 200) {
+            this.$message({
+              type: 'success',
+              message: '任务删除成功！',
+            });
+            this.getTodolist();
+          } else {
+            this.$message.error('任务删除失败！');
+          }
+        }, (err) => {
+          this.$message.error('任务删除失败！');
+          console.log(err);
+        });
     },
     /** 解析JWT Payload，获取用户信息 */
     getUserInfo() {
