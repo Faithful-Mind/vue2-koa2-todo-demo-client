@@ -20,6 +20,7 @@
         <!-- 增加一个click方法 loginToDo -->
         <el-button type="primary" @click="loginToDo">登录</el-button>
       </el-row>
+      <router-link to="/register"><el-button>注册</el-button></router-link>
     </el-col>
   </el-row>
 </template>

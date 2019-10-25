@@ -9,6 +9,10 @@ module.exports = {
         target: 'http://localhost:8889',
         changeOrigin: true,
       },
+      '/user': {
+        target: 'http://localhost:8889',
+        changeOrigin: true,
+      },
     },
   },
 };

@@ -20,6 +20,10 @@ const routes: RouteConfig[] = [
     },
   },
   {
+    path: '/register',
+    component: () => import(/* webpackChunkName: "register" */ '../views/Register.vue'),
+  },
+  {
     path: '/todolist',
     // route level code-splitting
     // this generates a separate chunk (todolist.[hash].js) for this route
