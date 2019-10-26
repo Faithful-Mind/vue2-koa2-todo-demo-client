@@ -89,12 +89,10 @@ export default {
               this.$router.push('/todolist');
             } else {
               this.$message.error(data.info);
-              sessionStorage.setItem('demo-token', null);
             }
             return true;
           } catch (err) {
             this.$message.error('请求错误！');
-            sessionStorage.setItem('demo-token', null);
             return false;
           }
         } else {

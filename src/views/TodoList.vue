@@ -164,7 +164,7 @@ export default {
     /** 解析JWT Payload，获取用户信息 */
     getUserInfo() {
       const token = sessionStorage.getItem('demo-token');
-      if (token != null && token !== 'null') {
+      if (token) {
         const decode = JSON.parse(atob(token.split('.')[1])); // 解析JWT Payload
         return decode; // decode解析出来实际上就是{name: XXX,id: XXX}
       }
