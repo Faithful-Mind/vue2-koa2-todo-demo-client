@@ -23,6 +23,11 @@ const routes: RouteConfig[] = [
     component: () => import(/* webpackChunkName: "todolist" */ '../views/TodoList.vue'),
     meta: { requiresAuth: true },
   },
+  {
+    path: '/changePassword',
+    component: () => import(/* webpackChunkName: "changePassword" */ '../views/ChangePassword.vue'),
+    meta: { requiresAuth: true },
+  },
 ];
 
 const router = new VueRouter({

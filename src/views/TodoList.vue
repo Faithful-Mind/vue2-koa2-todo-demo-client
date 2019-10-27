@@ -1,9 +1,10 @@
 <template>
   <el-row class="content">
     <el-col :xs="{span:20,offset:2}" :sm="{span:8,offset:8}">
-      <span>
+      <router-link to="/changePassword"><el-button>更改密码</el-button></router-link>
+      <div>
         欢迎：{{name}}！你的待办事项是：
-      </span>
+      </div>
       <el-input placeholder="请输入待办事项" v-model="todos" @keyup.enter.native="addTodos"></el-input>
       <el-tabs v-model="activeName">
         <el-tab-pane label="待办事项" name="first">
