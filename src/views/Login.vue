@@ -25,10 +25,11 @@
   </el-row>
 </template>
 
-<script>
+<script lang="ts">
+import Vue from 'vue';
 import axios from 'axios';
 
-export default {
+export default Vue.extend({
   data() {
     return {
       account: '',
@@ -60,7 +61,7 @@ export default {
         });
     },
   },
-};
+});
 </script>
 
 <style lang="stylus" scoped>

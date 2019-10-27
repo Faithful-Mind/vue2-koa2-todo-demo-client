@@ -48,13 +48,14 @@
   </el-row>
 </template>
 
-<script>
+<script lang="ts">
 /* eslint-disable guard-for-in */
+import Vue from 'vue';
 import axios from 'axios';
 
 import TodoItem from '../components/TodoItem.vue';
 
-export default {
+export default Vue.extend({
   components: {
     TodoItem,
   },
@@ -76,7 +77,7 @@ export default {
       name: '',
       todos: '',
       activeName: 'first',
-      list: [],
+      list: [] as ITodoItem[],
       count: 0,
       id: '', // 新增用户id属性，用于区别用户
     };
@@ -125,7 +126,7 @@ export default {
         });
       this.todos = ''; // 将当前todos清空
     },
-    update(index) {
+    update(index: number) {
       axios.put(
         `/api/todolist/${this.id}/${this.list[index].id}`,
         { ...this.list[index], status: !this.list[index].status },
@@ -145,7 +146,7 @@ export default {
           console.log(err);
         });
     },
-    remove(index) {
+    remove(index: number) {
       axios.delete(`/api/todolist/${this.id}/${this.list[index].id}`)
         .then((res) => {
           if (res.status === 200) {
@@ -185,7 +186,13 @@ export default {
         });
     },
   },
-};
+});
+
+export interface ITodoItem {
+  id: number;
+  status: boolean;
+  content: string;
+}
 </script>
 
 <style lang="stylus" scoped>

@@ -29,16 +29,18 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
+import Vue from 'vue';
+import { Form } from 'element-ui';
 import axios from 'axios';
 
-export default {
+export default Vue.extend({
   name: 'Register',
   data() {
-    const validatePass2 = (rule, value, callback) => {
+    const validatePass2 = (rule: object, value: any, callback: Function) => {
       if (value === '') {
         callback(new Error('请再次输入密码'));
-      } else if (value !== this.form.password) {
+      } else if (value !== (this as any).form.password) {
         callback(new Error('两次输入密码不一致!'));
       } else {
         callback();
@@ -70,9 +72,9 @@ export default {
     };
   },
   methods: {
-    onSubmit(formName) {
+    onSubmit(formName: string) {
       // 为表单绑定验证功能
-      this.$refs[formName].validate(async (valid) => {
+      (this.$refs[formName] as Form).validate(async (valid) => {
         if (valid) {
           const { username: name, password } = this.form;
           try {
@@ -99,7 +101,7 @@ export default {
       });
     },
   },
-};
+});
 </script>
 
 <style scoped>
