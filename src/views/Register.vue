@@ -82,10 +82,7 @@ export default {
             );
             if (data.success) {
               sessionStorage.setItem('demo-token', data.token);
-              this.$message({
-                type: 'success',
-                message: '登录成功！',
-              });
+              this.$message.success('注册成功！');
               this.$router.push('/todolist');
             } else {
               this.$message.error(data.info);
