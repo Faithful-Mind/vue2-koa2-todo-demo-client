@@ -40,7 +40,9 @@
       "@vue/airbnb",
       "@vue/typescript"
     ],
-    "rules": {},
+    "rules": {
+      "import/prefer-default-export": "warn"
+    },
     "parserOptions": {
       "parser": "@typescript-eslint/parser"
     }

@@ -51,6 +51,7 @@ import Vue from 'vue';
 import axios from 'axios';
 
 import TodoItem from '../components/TodoItem.vue';
+import { parseUserInfo } from '../services/user';
 
 export default Vue.extend({
   components: {
@@ -58,28 +59,25 @@ export default Vue.extend({
   },
 
   created() { // 组件创建时调用
-    const userInfo = this.getUserInfo();
+    const userInfo = parseUserInfo(sessionStorage.getItem('demo-token'));
     if (userInfo != null) {
       this.id = userInfo.id;
       this.name = userInfo.name;
-    } else {
-      this.id = '';
-      this.name = '';
     }
     this.getTodolist(); // 新增：在组件创建时获取todolist
   },
 
   data() {
     return {
+      id: '',
       name: '',
       todos: '',
       activeName: 'first',
       list: [] as ITodoItem[],
-      id: '', // 新增用户id属性，用于区别用户
     };
   },
 
-  computed: { // 计算属性用于计算是否已经完成了所有任务
+  computed: {
     todoList() {
       return (this as any).list.filter((item: ITodoItem) => !item.status);
     },
@@ -89,88 +87,70 @@ export default Vue.extend({
   },
 
   methods: {
-    addTodos() {
+    async addTodos() {
       if (this.todos === '') return;
       const obj = {
         status: false,
         content: this.todos,
         id: this.id,
       };
-      axios.post('/api/todolist', obj) // 新增创建请求
-        .then((res) => {
-          if (res.status === 200) { // 当返回的状态为200成功时
-            this.$message({
-              type: 'success',
-              message: '创建成功！',
-            });
-            this.getTodolist(); // 获得最新的todolist
-          } else {
-            this.$message.error('创建失败！'); // 当返回不是200说明处理出问题
-          }
-        }, (err) => {
-          this.$message.error('创建失败！'); // 当没有返回值说明服务端错误或者请求没发送出去
-          console.log(err);
-        });
+      try {
+        const res = await axios.post('/api/todolist', obj);
+        if (res.status === 200) { // 当返回的状态为200成功时
+          this.$message.success('创建成功！');
+          this.getTodolist(); // 获得最新的todolist
+        } else {
+          this.$message.error('创建失败！'); // 当返回不是200说明处理出问题
+        }
+      } catch (err) {
+        this.$message.error(err.response.data.info || '创建失败！'); // 当没有返回值说明服务端错误或者请求没发送出去
+        console.log(err);
+      }
       this.todos = ''; // 将当前todos清空
     },
-    update(item: ITodoItem) {
-      axios.put(
-        `/api/todolist/${this.id}/${item.id}`,
-        { ...item, status: !item.status },
-      )
-        .then((res) => {
-          if (res.status === 200) {
-            this.$message({
-              type: 'success',
-              message: '任务状态更新成功！',
-            });
-            this.getTodolist();
-          } else {
-            this.$message.error('任务状态更新失败！');
-          }
-        }, (err) => {
+    async update(item: ITodoItem) {
+      try {
+        const res = await axios.put(
+          `/api/todolist/${this.id}/${item.id}`,
+          { ...item, status: !item.status },
+        );
+        if (res.status === 200) {
+          this.$message.success('任务状态更新成功！');
+          this.getTodolist();
+        } else {
           this.$message.error('任务状态更新失败！');
-          console.log(err);
-        });
-    },
-    remove(item: ITodoItem) {
-      axios.delete(`/api/todolist/${this.id}/${item.id}`)
-        .then((res) => {
-          if (res.status === 200) {
-            this.$message({
-              type: 'success',
-              message: '任务删除成功！',
-            });
-            this.getTodolist();
-          } else {
-            this.$message.error('任务删除失败！');
-          }
-        }, (err) => {
-          this.$message.error('任务删除失败！');
-          console.log(err);
-        });
-    },
-    /** 解析JWT Payload，获取用户信息 */
-    getUserInfo() {
-      const token = sessionStorage.getItem('demo-token');
-      if (token) {
-        const decode = JSON.parse(atob(token.split('.')[1])); // 解析JWT Payload
-        return decode; // decode解析出来实际上就是{name: XXX,id: XXX}
+        }
+      } catch (err) {
+        this.$message.error(err.response.data.info || '任务状态更新失败！');
+        console.log(err);
       }
-      return null;
     },
-    getTodolist() {
-      axios.get(`/api/todolist/${this.id}`) // 向后端发送获取todolist的请求
-        .then((res) => {
-          if (res.status === 200) {
-            this.list = res.data; // 将获取的信息塞入实例里的list
-          } else {
-            this.$message.error('获取列表失败！');
-          }
-        }, (err) => {
+    async remove(item: ITodoItem) {
+      try {
+        const res = await axios.delete(`/api/todolist/${this.id}/${item.id}`);
+        if (res.status === 200) {
+          this.$message.success('任务删除成功！');
+          this.getTodolist();
+        } else {
+          this.$message.error('任务删除失败！');
+        }
+      } catch (err) {
+        this.$message.error(err.response.data.info || '任务删除失败！');
+        console.log(err);
+      }
+    },
+    async getTodolist() {
+      try {
+        const res = await axios.get(`/api/todolist/${this.id}`);
+        if (res.status === 200) {
+          this.list = res.data; // 将获取的信息塞入实例里的list
+        } else {
           this.$message.error('获取列表失败！');
-          console.log(err);
-        });
+        }
+      } catch (err) {
+        this.$message.error(err.response.data.info || '获取列表失败！');
+        console.log(err);
+      }
     },
   },
 });

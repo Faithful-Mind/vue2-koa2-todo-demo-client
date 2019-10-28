@@ -91,7 +91,7 @@ export default Vue.extend({
             }
             return true;
           } catch (err) {
-            this.$message.error('请求错误！');
+            this.$message.error(err.response.data.info || '请求错误！');
             return false;
           }
         } else {

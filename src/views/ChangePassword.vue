@@ -26,6 +26,8 @@ import Vue from 'vue';
 import { Form } from 'element-ui';
 import axios from 'axios';
 
+import { parseUserInfo } from '../services/user';
+
 export default Vue.extend({
   name: 'Register',
   data() {
@@ -62,7 +64,7 @@ export default Vue.extend({
     };
   },
   created() {
-    const userInfo = this.getUserInfo();
+    const userInfo = parseUserInfo(sessionStorage.getItem('demo-token'));
     if (userInfo != null) {
       this.userId = userInfo.id;
     }
@@ -95,15 +97,6 @@ export default Vue.extend({
           return false;
         }
       });
-    },
-    /** 解析JWT Payload，获取用户信息 */
-    getUserInfo() {
-      const token = sessionStorage.getItem('demo-token');
-      if (token) {
-        const decode = JSON.parse(atob(token.split('.')[1])); // 解析JWT Payload
-        return decode; // decode解析出来实际上就是{name: XXX,id: XXX}
-      }
-      return null;
     },
   },
 });

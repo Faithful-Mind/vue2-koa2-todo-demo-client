@@ -37,28 +37,25 @@ export default Vue.extend({
     };
   },
   methods: {
-    loginToDo() {
+    async loginToDo() {
       const obj = {
         name: this.account,
         password: this.password,
       };
-      axios.post('/auth/user', obj) // 将信息发送给后端
-        .then((res) => { // axios返回的数据都在res.data里
-          if (res.data.success) { // 如果成功
-            sessionStorage.setItem('demo-token', res.data.token); // 用sessionStorage把token存下来
-            this.$message({ // 登录成功，显示提示语
-              type: 'success',
-              message: '登录成功！',
-            });
-            this.$router.push('/todolist'); // 进入todolist页面，登录成功
-          } else {
-            this.$message.error(res.data.info); // 登录失败，显示提示语
-            sessionStorage.removeItem('demo-token'); // 将token清空
-          }
-        }, (err) => {
-          this.$message.error('请求错误！');
+      try {
+        const { data } = await axios.post('/auth/user', obj);
+        if (data.success) { // 如果成功
+          sessionStorage.setItem('demo-token', data.token); // 用sessionStorage把token存下来
+          this.$message.success('登录成功！'); // 登录成功，显示提示语
+          this.$router.push('/todolist'); // 进入todolist页面，登录成功
+        } else {
+          this.$message.error(data.info); // 登录失败，显示提示语
           sessionStorage.removeItem('demo-token'); // 将token清空
-        });
+        }
+      } catch (err) {
+        this.$message.error(err.response.data.info || '请求错误！');
+        sessionStorage.removeItem('demo-token'); // 将token清空
+      }
     },
   },
 });
