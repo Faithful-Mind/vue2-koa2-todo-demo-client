@@ -4,13 +4,13 @@
       {{ index + 1 }}. {{ item.content }}
     </span>
     <span class="pull-right">
-      <el-button v-if="!item.status" size="small" type="primary" @click="$emit('finish', index)">
+      <el-button v-if="!item.status" size="small" type="primary" @click="$emit('finish', item)">
         完成
       </el-button>
-      <el-button v-else size="small" type="primary" @click="$emit('restore', index)">
+      <el-button v-else size="small" type="primary" @click="$emit('restore', item)">
         还原
       </el-button>
-      <el-button size="small" :plain="true" type="danger" @click="$emit('remove', index)">
+      <el-button size="small" :plain="true" type="danger" @click="$emit('remove', item)">
         删除
       </el-button>
     </span>
@@ -19,11 +19,7 @@
 
 <script lang="ts">
 import Vue from 'vue';
-
-interface TodoItem {
-  status: boolean;
-  content: string;
-}
+import { ITodoItem } from '../views/TodoList.vue';
 
 export default Vue.extend({
   props: {
@@ -31,7 +27,7 @@ export default Vue.extend({
       type: Number,
     },
     item: {
-      type: Object as () => TodoItem,
+      type: Object as () => ITodoItem,
     },
   },
 });

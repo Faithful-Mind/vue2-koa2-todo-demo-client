@@ -9,11 +9,10 @@
       <el-tabs v-model="activeName">
         <el-tab-pane label="待办事项" name="first">
           <el-col :xs="24">
-            <template v-if="!Done"> <!--v-if和v-for不能同时在一个元素内使用，因为Vue总会先执行v-for-->
-              <template v-for="(item, index) in list">
+            <template v-if="todoList.length"> <!--v-if和v-for不能同时在一个元素内使用，因为Vue总会先执行v-for-->
+              <template v-for="(item, index) in todoList">
                 <todo-item
                   :key="index"
-                  v-if="item.status == false"
                   :index="index"
                   :item="item"
                   v-on:finish="update"
@@ -21,17 +20,16 @@
                 />
               </template>
             </template>
-            <div v-else-if="Done">
+            <div v-else>
               暂无待办事项
             </div>
           </el-col>
         </el-tab-pane>
         <el-tab-pane label="已完成事项" name="second">
-          <template v-if="count > 0">
-            <template v-for="(item, index) in list">
+          <template v-if="doneList.length">
+            <template v-for="(item, index) in doneList">
               <todo-item
                 :key="index"
-                v-if="item.status == true"
                 :index="index"
                 :item="item"
                 v-on:restore="update"
@@ -49,7 +47,6 @@
 </template>
 
 <script lang="ts">
-/* eslint-disable guard-for-in */
 import Vue from 'vue';
 import axios from 'axios';
 
@@ -78,26 +75,16 @@ export default Vue.extend({
       todos: '',
       activeName: 'first',
       list: [] as ITodoItem[],
-      count: 0,
       id: '', // 新增用户id属性，用于区别用户
     };
   },
 
   computed: { // 计算属性用于计算是否已经完成了所有任务
-    Done() {
-      let count = 0;
-      const { length } = this.list;
-      // eslint-disable-next-line no-restricted-syntax
-      for (const i in this.list) {
-        // eslint-disable-next-line no-unused-expressions
-        this.list[i].status === true ? count += 1 : '';
-      }
-      // eslint-disable-next-line vue/no-side-effects-in-computed-properties
-      this.count = count;
-      if (count === length || length === 0) {
-        return true;
-      }
-      return false;
+    todoList() {
+      return (this as any).list.filter((item: ITodoItem) => !item.status);
+    },
+    doneList() {
+      return (this as any).list.filter((item: ITodoItem) => item.status);
     },
   },
 
@@ -126,10 +113,10 @@ export default Vue.extend({
         });
       this.todos = ''; // 将当前todos清空
     },
-    update(index: number) {
+    update(item: ITodoItem) {
       axios.put(
-        `/api/todolist/${this.id}/${this.list[index].id}`,
-        { ...this.list[index], status: !this.list[index].status },
+        `/api/todolist/${this.id}/${item.id}`,
+        { ...item, status: !item.status },
       )
         .then((res) => {
           if (res.status === 200) {
@@ -146,8 +133,8 @@ export default Vue.extend({
           console.log(err);
         });
     },
-    remove(index: number) {
-      axios.delete(`/api/todolist/${this.id}/${this.list[index].id}`)
+    remove(item: ITodoItem) {
+      axios.delete(`/api/todolist/${this.id}/${item.id}`)
         .then((res) => {
           if (res.status === 200) {
             this.$message({
