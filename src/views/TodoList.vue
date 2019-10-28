@@ -109,11 +109,14 @@ export default Vue.extend({
       this.todos = ''; // 将当前todos清空
     },
     async update(item: ITodoItem) {
+      const reqPromise = axios.put(
+        `/api/todolist/${this.id}/${item.id}`,
+        { ...item, status: !item.status },
+      );
+      const listItem = this.list.find(it => it.id === item.id);
+      if (listItem) listItem.status = !listItem.status;
       try {
-        const res = await axios.put(
-          `/api/todolist/${this.id}/${item.id}`,
-          { ...item, status: !item.status },
-        );
+        const res = await reqPromise;
         if (res.status === 200) {
           this.$message.success('任务状态更新成功！');
           this.getTodolist();
