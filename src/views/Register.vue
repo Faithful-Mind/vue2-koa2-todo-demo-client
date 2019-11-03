@@ -79,7 +79,7 @@ export default Vue.extend({
           const { username: name, password } = this.form;
           try {
             const { data } = await axios.post(
-              '/user/register',
+              '/api/user/register',
               { name, password },
             );
             if (data.success) {

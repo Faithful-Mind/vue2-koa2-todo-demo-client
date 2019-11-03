@@ -92,32 +92,32 @@ export default Vue.extend({
       const obj = {
         status: false,
         content: this.todos,
-        id: this.id,
+        userId: this.id,
       };
       try {
-        const res = await axios.post('/api/todolist', obj);
-        if (res.status === 200) { // 当返回的状态为200成功时
+        const { data } = await axios.post(`/api/user/${this.id}/todolist`, obj);
+        if (data.success) {
           this.$message.success('创建成功！');
           this.getTodolist(); // 获得最新的todolist
         } else {
-          this.$message.error('创建失败！'); // 当返回不是200说明处理出问题
+          this.$message.error('创建失败！');
         }
       } catch (err) {
-        this.$message.error(err.response.data.info || '创建失败！'); // 当没有返回值说明服务端错误或者请求没发送出去
+        this.$message.error(err.response.data.info || '创建失败！');
         console.log(err);
       }
       this.todos = ''; // 将当前todos清空
     },
     async update(item: ITodoItem) {
       const reqPromise = axios.put(
-        `/api/todolist/${this.id}/${item.id}`,
+        `/api/user/${this.id}/todolist/${item.id}`,
         { ...item, status: !item.status },
       );
       const listItem = this.list.find(it => it.id === item.id);
       if (listItem) listItem.status = !listItem.status;
       try {
-        const res = await reqPromise;
-        if (res.status === 200) {
+        const { data } = await reqPromise;
+        if (data.success) {
           this.$message.success('任务状态更新成功！');
           this.getTodolist();
         } else {
@@ -130,8 +130,8 @@ export default Vue.extend({
     },
     async remove(item: ITodoItem) {
       try {
-        const res = await axios.delete(`/api/todolist/${this.id}/${item.id}`);
-        if (res.status === 200) {
+        const { data } = await axios.delete(`/api/user/${this.id}/todolist/${item.id}`);
+        if (data.success) {
           this.$message.success('任务删除成功！');
           this.getTodolist();
         } else {
@@ -144,7 +144,7 @@ export default Vue.extend({
     },
     async getTodolist() {
       try {
-        const res = await axios.get(`/api/todolist/${this.id}`);
+        const res = await axios.get(`/api/user/${this.id}/todolist`);
         if (res.status === 200) {
           this.list = res.data; // 将获取的信息塞入实例里的list
         } else {

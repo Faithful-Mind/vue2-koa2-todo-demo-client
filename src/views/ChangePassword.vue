@@ -77,7 +77,7 @@ export default Vue.extend({
           const { password, newPassword } = this.form;
           try {
             const { data } = await axios.patch(
-              `/user/${this.userId}`,
+              `/api/user/${this.userId}`,
               { password, newPassword },
             );
             if (data.success) {
